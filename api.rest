@@ -1,0 +1,30 @@
+@host = https://n40v6701cj.execute-api.us-east-1.amazonaws.com
+
+###
+GET {{host}}/products
+
+###
+GET {{host}}/products/46713fea-889c-4cd8-bd25-ae985202772c
+
+###
+POST {{host}}/products
+Content-Type: application/json
+
+{
+  "name": "camo",
+  "price": 99,
+  "tags": ["fds", "ts"]
+}
+
+###
+PUT {{host}}/products/efa32c55-6618-40e2-9b44-b3d64b49095d
+Content-Type: application/json
+
+{
+  "name": "camisa",
+  "price": 100,
+  "tags": ["Oferta"]
+}
+
+###
+DELETE {{host}}/products/46713fea-889c-4cd8-bd25-ae985202772c

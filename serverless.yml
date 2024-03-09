@@ -1,0 +1,83 @@
+service: live017
+frameworkVersion: '3'
+
+plugins:
+  - serverless-esbuild
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Scan
+          Resource:
+            - !GetAtt ProductsTable.Arn
+
+package: 
+  individually: true
+  
+custom:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: false
+    exclude: 
+      - '@aws-sdk/*'
+    target: node20
+    platform: node
+    concurrency: 10
+
+functions:
+  listProducts:
+    handler: src/functions/listProducts.handler
+    events:
+      - httpApi:
+          path: /products
+          method: GET
+  getProduct:
+    handler: src/functions/getProduct.handler
+    events:
+      - httpApi:
+          path: /products/{productId}
+          method: GET  
+  createProduct:
+    handler: src/functions/createProduct.handler
+    events:
+      - httpApi:
+          path: /products
+          method: POST
+  updateProduct:
+    handler: src/functions/updateProduct.handler
+    events:
+      - httpApi:
+          path: /products/{productId}
+          method: PUT
+  deleteProduct:
+    handler: src/functions/deleteProduct.handler
+    events:
+      - httpApi:
+          path: /products/{productId}
+          method: DELETE
+
+resources:
+  Resources:
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ProductsTable
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: id
+            KeyType: HASH
